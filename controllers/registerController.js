@@ -1,11 +1,5 @@
 const User = require('../models/user');
-const bodyParser = require('body-parser');
-const dbcon = require('../models/dbcon');
 const bcrypt = require('bcryptjs');
-
-
-const urlencodedParser = bodyParser.urlencoded({extended: false});
-
 const { check, validationResult } = require('express-validator');
 
 module.exports = (app) => {
@@ -14,59 +8,68 @@ module.exports = (app) => {
         res.render('index');
     });
 
-    app.post('/register', urlencodedParser, [
+    app.post('/register', [
         //Use express validator to check users details
-        check('firstname', 'Firstname is required').isEmpty(),
-        check('lastname', 'Lastname is required').isEmpty(),
-        check('email', 'Email is invalid').isEmail(),
-        check('email', 'Email is required').isEmpty(),
-        check('password', 'Password is required').isEmpty()
+        check('firstname', 'Firstname is required').not().isEmpty(),
+        check('lastname', 'Lastname is required').not().isEmpty(),
+        check('email', 'A vaild Email is required').isEmail(),
+        check('password', 'Password must be a min of 7 characters').isLength({min:7})
+        
     ], (req, res) => {
+        //Destruction the form data into variables
+        const {firstname, lastname, email, password} = req.body;
         //get errors if any
-        const errors = validationResult(req);
-        if(!errors.isEmpty()){
-            req.flash('error', 'Check all input fields and try again!');
-            res.render('index');   
-        }else{
+        const errorsObj = validationResult(req);
+        
+        if(!errorsObj.isEmpty()){
+            res.render('index', {errorsObj, firstname, lastname, email, password});
+            
+        }else{     
+            //Check if the email already exists
+             User.findOne({email: email})
+                .then((user) => {
+                    if(user){
+                    //user already exist
+                    const userError = 'Email is already registered';
+                    res.render('index', {userError, firstname, lastname, email, password});
+                    }else{
+                    //since there is no error and user does not exist then create user
+                    let newUser = new User({
+                        firstname:firstname,
+                        lastname: lastname,
+                        email:email,
+                        password:password
+                    });
 
-        //Assign all the users detail to a variables
-          const firstname = req.body.firstname;
-          const lastname = req.body.lastname;
-          const email = req.body.email;
-          const password = req.body.password;
-          
-         //since there is no error, match user detail to our schema object
-              let newUser = new User({
-                firstname:firstname,
-                lastname: lastname,
-                email:email,
-                password:password
-              });
+                    //use bcrypt to hash the user password
+                    bcrypt.genSalt(10, (err,salt) => {
+                        bcrypt.hash(newUser.password, salt, (err,hash) => {
+                            if(err){
+                                console.log(err);
+                                return;
+                            }
+                            //when there is no error with the hashing, replace the user password with the hash equivalent
+                            newUser.password = hash;
 
-              //use bcrypt to hash the user password
-              bcrypt.genSalt(10, (err,salt) => {
-                  bcrypt.hash(newUser.password, salt, (err,hash) => {
-                      if(err){
-                          console.log(err);
-                          return;
-                      }
-                      //when there is no error with the hashing, replace the user password with the hash equivalent
-                      newUser.password = hash;
+                            //save the user details to mongodb
+                            newUser.save((err) => {
+                                if(err){
+                                    console.log(err);
+                                    return;
+                                }else{
+                                    //save was successful display success message and redirect
+                                    req.flash('success_mesg', 'Registration Successful, pls login');
+                                    //const success = 'Registration Successful, pls login';
+                                    res.redirect('login');
+                                }
+                            });
 
-                      //save the user details to mongodb
-                      newUser.save((err) => {
-                          if(err){
-                              console.log(err);
-                              return;
-                          }else{
-                            //save was successful display success message and redirect
-                            req.flash('success', 'Registration Successful, pls login');
-                            res.redirect('/');
-                          }
-                      });
+                        });
+                    }); 
 
-                  });
-              }); 
+                    }
+                })   
+         
          }
         
     });

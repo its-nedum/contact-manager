@@ -23,9 +23,9 @@
             </div>
             <div class="left-content">
                 <ul role="tablist">
-                    <li role="presentation" class="active"><a href="/dashboard"><span><i class="fa fa-home"></i></span>Dashboard</a></li>
-                    <li role="presentation"><a href="/create" ><span><i class="fa fa-folder"></i></span>Create Contact</a></li>
-                    <li role="presentation"><a href="/read"><span><i class="fa fa-code"></i></span>Read Contact</a></li>
+                    <li role="presentation" ><a href="/dashboard"><span><i class="fa fa-home"></i></span>Dashboard</a></li>
+                    <li role="presentation"><a href="/create"><span><i class="fa fa-folder"></i></span>Create Contact</a></li>
+                    <li role="presentation" class="active"><a href="/read"><span><i class="fa fa-code"></i></span>Read Contact</a></li>
                     <li role="presentation"><a href="/settings"><span><i class="fa fa-support"></i></span>Settings</a></li>
                     <li role="presentation"><a href="/logout"><span><i class="fa fa-power-off"></i></span>Logout</a></li>
                 </ul>
@@ -36,26 +36,29 @@
         </div>
         <div class="right-side">
             <div class="right-content">
-                <div id="home" class="content active fade in">
-                    <h1><span>Welcome</span> <%= name %></h1>
-                    <div class="content-welcome">
-                        <p>
-
-                        </p>
-                    </div>
-                    <div class="created">
-                        <p style="color:#fff !important">
-                            <br>
-                            <br><h3>This contact list manager allows you to save unlimited contacts to your account and access them wherever and whenever.</h3>
-                            Created by: Chinedu Emesue
-                            <br>Social media pages:
-                            <br><a href="https://www.github.com/its-nedum" target="_blank">Github</a>
-                            <br><a href="https://www.facebook.com/itsnedum" target="_blank">Facebook</a>
-                            <br><a href="https://www.twitter.com/its_nedum" target="_blank">Twitter</a> 
-                        </p>
-                    </div>
-                </div>
                 
+                <div class="content active fade in">
+                <div class=" w3l-login-form">
+                <% include ./partials/messages %>
+                <% if(typeof singleContact != 'undefined'){ %>
+                    <label>Full Name:</label><div><%= singleContact.firstName %> <%= singleContact.lastName %></div>
+                    <label>Phone No:</label><div><%= singleContact.phoneNo%></div>
+                <% } %>
+                <a href="/edit/<%= singleContact._id %>"" class="btn btn-primary">Edit Contact</a>
+                
+                <form action="/delete/<%= singleContact._id %>" method="POST">
+                    <input type="hidden" name="firstname" value="<%= singleContact.firstName%>"/>
+                    <input type="hidden" name="lastname" value="<%= singleContact.lastName%>"/>
+                    <input type="hidden" value="telephone" value="<%= singleContact.phoneNo%>"/>
+                    <button type="submit" class="btn btn-sm btn-danger">Delete Contact</button>
+                    
+                </form>
+                
+                
+                </div>
+            </div>
+                </div>
+                            
                 
             </div>
         </div>

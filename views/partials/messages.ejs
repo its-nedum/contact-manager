@@ -1,0 +1,33 @@
+<% if(typeof errorsObj != 'undefined') { %>
+  <% for(let i = 0; i < errorsObj.errors.length; i++) { %>
+  <div style="color:#fff">
+    *<%= errorsObj.errors[i].msg %>
+  <div>
+  <% }; %>
+<% }else if(typeof success != 'undefined'){ %>
+  <div style="color:#fff">
+      <%= success %>
+  </div>
+  <% }else if(typeof userError != 'undefined'){ %>
+  <div style="color:#fff">
+      *<%= userError %>
+  </div>
+  <% } %>
+
+  <% if(success_mesg != ''){ %>
+    <div style="color:#fff">
+      <%= success_mesg %>
+  </div>
+  <% } %>
+
+  <% if(error_mesg != ''){ %>
+    <div style="color:#fff">
+      <%= error_mesg %>
+  </div>
+  <% } %>
+
+  <% if(error != ''){ %>
+    <div style="color:#fff">
+      <%= error %>
+  </div>
+  <% } %>
