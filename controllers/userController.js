@@ -9,6 +9,8 @@ const { check, validationResult } = require('express-validator');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 
+mongoose.set('useFindAndModify', false);
+
 module.exports = (app) => {
 
     //Render dashboard
@@ -147,38 +149,22 @@ module.exports = (app) => {
         });
 
                 //Delete a contact
-                app.post('/delete/:id', ensureAuthenticated, (req, res) =>{
-                    
-                    const userEmail = req.user.email;
+                app.post('/delete/:id', ensureAuthenticated, (req, res) =>{   
                     const contactId = req.params.id;
-                    const firstname = req.body.firstname;
-                    const lastname = req.body.lastname;
-                    const telephone = req.body.telephone;
 
                     //Find the user in database and delete the contact 
-                   User.findOneAndUpdate(
-                        {
-                            email:userEmail, 
-                            'contacts._id':new ObjectId(contactId),
-                        },
-                        { 
-                            $pull : { contacts : {_id:contactId, firstName:firstname, lastName:lastname, phoneNo:telephone } } 
-                        },
-                        (err, result) =>{
+                    User.findOneAndUpdate(
+                        {}, { 
+                            $pull : { contacts : {_id: ObjectId(contactId) } } 
+                        }, (err, result) =>{
                             if(err){
                                 console.log(err);
                                 return;
                             }else{
-                                console.log(result);
-                                console.log(contactId);
-                                //res.send("Success!");
-                                
+                                res.redirect('/read');                                
                             }
-                            
                         },   
-                    )
-               
-                      
+                    )               
                 })
 
                 
