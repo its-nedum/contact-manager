@@ -156,13 +156,13 @@ module.exports = (app) => {
                     const telephone = req.body.telephone;
 
                     //Find the user in database and delete the contact 
-                   User.findOneAndUpdate(
+                   User.updateOne(
                         {
                             email:userEmail, 
                             'contacts._id':new ObjectId(contactId),
                         },
                         { 
-                            $pull : { contacts : {_id:contactId, firstName:firstname, lastName:lastname, phoneNo:telephone } } 
+                            $pull : { contacts : {_id:new ObjectId(contactId), firstName:firstname, lastName:lastname, phoneNo:telephone } } 
                         },
                         (err, result) =>{
                             if(err){
@@ -170,7 +170,7 @@ module.exports = (app) => {
                                 return;
                             }else{
                                 console.log(result);
-                                console.log(contactId);
+                                console.log(new ObjectId(contactId));
                                 //res.send("Success!");
                                 
                             }
